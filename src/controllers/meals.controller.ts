@@ -5,26 +5,27 @@ import { prisma } from '../prisma';
 
 export async function meals(
   req: Request,
-  res: Response){
-    const meals = await prisma.meal.findMany({
-      where: {
-        userId: req.userId,
-      },
+  res: Response,
+) {
+  const meals = await prisma.meal.findMany({
+    where: {
+      userId: req.userId,
+    },
 
-      include: {
-        foods: {
-          include: {
-            food: true
-          },
+    include: {
+      foods: {
+        include: {
+          food: true,
         },
       },
+    },
 
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
 
-    const result = meals.map((meal) => {
+  const result = meals.map((meal) => {
     const totals = meal.foods.reduce(
       (acc, item) => {
         const factor = item.foodG / 100;
@@ -32,16 +33,20 @@ export async function meals(
         acc.grams += item.foodG;
 
         acc.calories +=
-          item.food.caloriesPer100g * factor;
+          item.food.caloriesPer100g *
+          factor;
 
         acc.carbs +=
-          item.food.carbsPer100g * factor;
+          item.food.carbsPer100g *
+          factor;
 
         acc.proteins +=
-          item.food.proteinPer100g * factor;
+          item.food.proteinPer100g *
+          factor;
 
         acc.fats +=
-          item.food.fatPer100g * factor;
+          item.food.fatPer100g *
+          factor;
 
         return acc;
       },
@@ -54,7 +59,7 @@ export async function meals(
       },
     );
 
-    res.json({
+    return {
       id: meal.id,
       name: meal.description,
       createdAt: meal.createdAt,
@@ -62,9 +67,11 @@ export async function meals(
       totals,
 
       items: meal.foods,
-    });
+    };
   });
-  }
+
+  return res.json(result);
+}
 
 export async function createMeal(
   req: Request,
