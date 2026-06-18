@@ -64,6 +64,7 @@ export async function meals(
       name: meal.description,
       type: meal.type,
       createdAt: meal.createdAt,
+      eatTime: meal.eatTime,
 
       totals,
 
