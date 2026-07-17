@@ -32,6 +32,37 @@ foodRouter.post('/', requireAuth, async (req, res) => {
     proteinPer100g,
     fatPer100g,
   } = req.body;
+  
+  foodRouter.put('/:id', requireAuth, async (req, res) => {
+  const { id } = req.params;
+  const {
+    name,
+    caloriesPer100g,
+    carbsPer100g,
+    proteinPer100g,
+    fatPer100g,
+  } = req.body;
+
+  try {
+    const updatedFood = await prisma.food.update({
+      where: {
+  id: Number(id),
+  userId: req.userId!,
+},
+      data: {
+        name,
+        caloriesPer100g,
+        carbsPer100g,
+        proteinPer100g,
+        fatPer100g,
+      },
+    });
+
+    return res.json(updatedFood);
+  } catch (error) {
+    return res.status(400).json({ error: "Não foi possível atualizar o alimento. Verifique se ele existe." });
+  }
+});
 
   const food = await prisma.food.create({
     data: {
