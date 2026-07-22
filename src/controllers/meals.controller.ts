@@ -169,3 +169,33 @@ export async function createMeal(
   return res.status(201).json(meal);
 }
 
+export async function deleteMeal(req: Request, res: Response) {
+  const { id } = req.params;
+  const userId = req.userId;
+
+  try {
+    // Verifica se a refeição existe e pertence ao usuário antes de apagar
+    const meal = await prisma.meal.findFirst({
+      where: {
+        id: Number(id),
+        userId: userId,
+      },
+    });
+
+    if (!meal) {
+      return res.status(404).json({ error: "Refeição não encontrada." });
+    }
+
+    // Como a tabela intermediária (MealFood) tem onDelete Cascade configurado no Prisma,
+    // deletar a refeição remove os itens automaticamente.
+    await prisma.meal.delete({
+      where: {
+        id: Number(id),
+      },
+    });
+
+    return res.status(204).send();
+  } catch (error) {
+    return res.status(400).json({ error: "Erro ao excluir refeição." });
+  }
+}
