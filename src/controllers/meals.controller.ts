@@ -26,25 +26,23 @@ export async function meals(
   const result = meals.map((meal) => {
     const totals = meal.foods.reduce(
       (acc, item) => {
-        const factor = item.foodG / 100;
+        // Proteções contra valores nulos/undefined vindos do banco
+        const foodG = item.foodG ?? 0;
+        const factor = foodG / 100;
 
-        acc.grams += item.foodG;
+        acc.grams += foodG;
 
         acc.calories +=
-          item.food.caloriesPer100g *
-          factor;
+          (item.food?.caloriesPer100g ?? 0) * factor;
 
         acc.carbs +=
-          item.food.carbsPer100g *
-          factor;
+          (item.food?.carbsPer100g ?? 0) * factor;
 
         acc.proteins +=
-          item.food.proteinPer100g *
-          factor;
+          (item.food?.proteinPer100g ?? 0) * factor;
 
         acc.fats +=
-          item.food.fatPer100g *
-          factor;
+          (item.food?.fatPer100g ?? 0) * factor;
 
         return acc;
       },
@@ -63,9 +61,7 @@ export async function meals(
       type: meal.type,
       createdAt: meal.createdAt,
       eatTime: meal.eatTime,
-
       totals,
-
       items: meal.foods,
     };
   });
